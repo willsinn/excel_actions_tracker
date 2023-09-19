@@ -5,6 +5,7 @@
 4. Delete moved items from active sheet.
 */ 
 
+const targetHeader = "COMPLETE?"
 
 const strTrimmer = function (str) { // Removes extra whitespace before and after text values. Also adjusts double whitespaces to single whitespaces.
   let removeExtraWhitespace = `${str}`.trim().replace(/ {2,}/g, " ");
@@ -55,24 +56,52 @@ function main(workbook: ExcelScript.Workbook) {
   // console.log("GET ROW VALUES", allTableValues)
   // Divide completed/incomplete items into two arrays
   // Get number of rows to create arrays.
+  const entries = Object.entries(allTableValues);
+  
   const numberOfRows = getMaxNumberOfRows();
-  let completeColIndex = 0;
   function getMaxNumberOfRows(){
-    let maxLength_columnIndex = [0, 0]; // [length, index]
-    const entries = Object.entries(allTableValues);
+    let requiredValues = [0, 0]; // [length, completeColIndex];
     for (let i = 0; i < entries.length; i++) {
       const column = entries[i][1];
       const header = strTrimmer(entries[i][1][0]);
-      
-      console.log(header);
-      if (column.length > maxLength_columnIndex[0]) {
-        maxLength_columnIndex = [column.length, i];
+      if (header.toUpperCase() == targetHeader) {
+        requiredValues = [requiredValues[0], i];
+      }
+      if (column.length > requiredValues[0]) {
+        requiredValues = [column.length, requiredValues[1]];
       }
     }
-    return maxLength_columnIndex;
+    return requiredValues;
   };
-  // console.log("GET MAX ROWS", numberOfRows)
+  
+  // console.log("GET MAX ROWS, GET COMPLETE? INDEX", numberOfRows)
 
+
+
+  // Create separate arrays for complete and incomplete items.
+  const complete = [Array];
+  const incomplete = [Array];
+
+  for (let i = 1; i < numberOfRows[0]; i++) {
+      const row = [Array];
+      let isComplete = false;
+      for (let j = 0; j < entries.length; j++) {
+        let cellVal = "";
+        cellVal = entries[j][1][i];
+        
+        row.push(cellVal);
+        if (j == numberOfRows[1] && cellVal == "Yes") {
+          isComplete = true;
+        }
+      }
+      
+      if (isComplete === true) {
+        complete.push(row);
+      } else {
+        incomplete.push(row);
+      }
+  }
+
+  // console.log("FILTERED COMPLETE AND INCOMPLETE VALUES IN THEIR OWN ARRAYS", complete, incomplete)
   
 }
-
