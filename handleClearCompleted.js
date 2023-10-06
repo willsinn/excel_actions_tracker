@@ -11,14 +11,17 @@ const rowIdx = activeCell.getRowIndex();
     const colA = activeSheet.getRange('A:A').getValues();
 
 
-
+function handleUpdateCellA1() {
+      const getSheetNameCell = activeSheet.getRange('A1');
+      getSheetNameCell.setValue(sheetName);
+      return;
+}
 function handleSheetNameChange() {
-  // Logger.log(colA)
-  colA.map((tId, idx) => {
-      // Logger.log(tId)
+  colA.map((tId, idx) => { //map through all existing IDs and update them to match the new sheet name
+      Logger.log(tId)
       const task = { idvalue: "" };
 
-      if (idx > 1 && tId.length > 0) { //skip first two rows
+      if (idx > 1 && tId[0]) { //skip first two rows
           let tIdSplit = tId[0].split("");
 
           for (let i = 0; i < 5; i++) { // account for a 6 digit ID number
@@ -32,12 +35,15 @@ function handleSheetNameChange() {
                   task.idvalue = str;
                 }
             }
-        }
-      Logger.log(task.idvalue);
 
+            const newId = `${sheetName}` + '_' + `${task.idvalue}`;
+            const targetCell = activeSheet.getRange(`A${parseInt(idx+1)}`)
+            targetCell.setValue(newId);
+        }
       })
+      handleUpdateCellA1();
     }
- 
+
   function handleCreateUniqueTaskID() {
     const taskIdCell = activeSheet.getRange(`A${rowIdx}`);
 
